@@ -1,15 +1,37 @@
 import time
 import random
+import csv
 
-data_dir = '/mnt/c/Users/Oscar/Stocks'
+data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
 delay = 0.5  # (s)
 
-holdings = {'Net Worth': 100,'Cash': 100, 'APPL': 0}
+holdings = {'Net Worth': 100,'Cash': 100, 'AAPL': 0}
+
+dates = []
+with open(data_dir + 'AAPL' + '.csv', 'r') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        date = row[0]
+        # print(date)
+        if date != 'Date':
+            dates.append(date)
 
 
-def update_prices():
-    updated_prices = {'APPL': 10 + random.random() * 5}  # ($)
+def get_one_stock_price(ticker, date):
+    with open(data_dir + ticker + '.csv', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == date:
+                price = float(row[3][2:])  # ($)
+    return price
+
+
+def update_prices(date):
+    ticker = 'AAPL'
+    price = get_one_stock_price(ticker, date)
+    # price = 10 + random.random() * 5  # ($)
+    updated_prices = {ticker: price}  # ($)
     return updated_prices
 
 
@@ -41,19 +63,24 @@ def update_net_worth(portfolio, prices):
     portfolio['Net Worth'] = net_worth
     return portfolio
 
-
+days_gone_by = 1  # warning 1 will mean the first date in dates
 while True:
+    print(dates[-days_gone_by])
+
     # load next day's opening values
-    prices = update_prices()
+    prices = update_prices(dates[-days_gone_by])
+    print(prices)
 
     # trade
-    if holdings['APPL'] > 5:
-        holdings = sell(holdings, 'APPL', prices['APPL'], 2)
-    elif holdings['Cash'] > prices['APPL']:
-        holdings = buy(holdings, 'APPL', prices['APPL'], 1)
+    if holdings['AAPL'] > 5:
+        holdings = sell(holdings, 'AAPL', prices['AAPL'], 2)
+    elif holdings['Cash'] > prices['AAPL']:
+        holdings = buy(holdings, 'AAPL', prices['AAPL'], 1)
 
     # print wealth
     holdings = update_net_worth(holdings, prices)
     print(holdings)
+    print()
 
-    time.sleep(delay)
+    days_gone_by += 1
+    # time.sleep(delay)
