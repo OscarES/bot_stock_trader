@@ -23,8 +23,14 @@ def buy(portfolio, ticker, ticker_price, amount):
         return portfolio
 
 
-def sell(portfolio, ticker, amount):
-    return
+def sell(portfolio, ticker, ticker_price, amount):
+    if amount < portfolio[ticker]:
+        sell_value = ticker_price * amount  # ($)
+        portfolio['Cash'] += sell_value  # ($)
+        portfolio[ticker] -= amount
+        return portfolio
+    else:
+        return portfolio
 
 
 def update_net_worth(portfolio, prices):
@@ -41,7 +47,9 @@ while True:
     prices = update_prices()
 
     # trade
-    if holdings['Cash'] > prices['APPL']:
+    if holdings['APPL'] > 5:
+        holdings = sell(holdings, 'APPL', prices['APPL'], 2)
+    elif holdings['Cash'] > prices['APPL']:
         holdings = buy(holdings, 'APPL', prices['APPL'], 1)
 
     # print wealth
