@@ -1,4 +1,5 @@
 import time
+import random
 
 data_dir = '/mnt/c/Users/Oscar/Stocks'
 
@@ -8,7 +9,7 @@ holdings = {'Net Worth': 100,'Cash': 100, 'APPL': 0}
 
 
 def update_prices():
-    updated_prices = {'APPL': 10}
+    updated_prices = {'APPL': 10 + random.random() * 5}  # ($)
     return updated_prices
 
 
