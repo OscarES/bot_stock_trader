@@ -23,7 +23,7 @@ def get_one_stock_price(ticker, date):
         reader = csv.reader(f)
         for row in reader:
             if row[0] == date:
-                price = float(row[3][2:])  # ($)
+                price = float(row[1][2:])  # ($)
     return price
 
 
