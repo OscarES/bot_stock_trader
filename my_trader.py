@@ -64,7 +64,7 @@ def update_net_worth(portfolio, prices):
     return portfolio
 
 days_gone_by = 1  # warning 1 will mean the first date in dates
-while True:
+while len(dates) >= days_gone_by:
     print(dates[-days_gone_by])
 
     # load next day's opening values
