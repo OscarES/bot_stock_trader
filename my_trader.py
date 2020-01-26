@@ -6,7 +6,7 @@ data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
 delay = 0.5  # (s)
 
-holdings = {'Net Worth': 100,'Cash': 100, 'AAPL': 0}
+holdings = {'Net Worth': 1000000,'Cash': 1000000, 'AAPL': 0}
 
 dates = []
 with open(data_dir + 'AAPL' + '.csv', 'r') as f:
