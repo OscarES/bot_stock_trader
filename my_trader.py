@@ -1,6 +1,7 @@
 import time
 import random
 import csv
+import math
 
 data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
@@ -45,6 +46,11 @@ def buy(portfolio, ticker, ticker_price, amount):
         return portfolio
 
 
+def buy_max(portfolio, ticker, ticker_price):
+    max_amount = math.floor(portfolio['Cash'] / ticker_price)
+    return buy(portfolio, ticker, ticker_price, max_amount)
+
+
 def sell(portfolio, ticker, ticker_price, amount):
     if amount < portfolio[ticker]:
         sell_value = ticker_price * amount  # ($)
@@ -75,7 +81,7 @@ while len(dates) >= days_gone_by:
     if holdings['AAPL'] > 5:
         holdings = sell(holdings, 'AAPL', prices['AAPL'], 2)
     elif holdings['Cash'] > prices['AAPL']:
-        holdings = buy(holdings, 'AAPL', prices['AAPL'], 1)
+        holdings = buy_max(holdings, 'AAPL', prices['AAPL'])
 
     # print wealth
     holdings = update_net_worth(holdings, prices)
