@@ -10,7 +10,7 @@ data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
 delay = 0.5  # (s)
 
-holdings = {'Net Worth': 1000000,'Cash': 1000000, 'AAPL': 0}
+holdings = {'Net Worth': 1000000,'Cash': 1000000}
 
 ticker_files = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
 tickers = [f[:-4] for f in ticker_files if f[-4:] == '.csv']
@@ -39,7 +39,6 @@ def get_one_stock_price(ticker, date):
 
 
 def update_prices(date):
-    ticker = 'AAPL'
     updated_prices = {}
     for ticker in tickers:
         price = get_one_stock_price(ticker, date)
