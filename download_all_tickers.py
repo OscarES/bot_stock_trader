@@ -32,7 +32,28 @@ def quandl_stocks(symbol, start_date=(2000, 1, 1), end_date=None):
 
 
 if __name__ == '__main__':
-    # apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1), end_date=(2000, 1, 3))
-    apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1))
-    print(apple_data)
-    apple_data.to_csv('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/AAPL.csv', encoding='utf-8')
+    with open('nasdaq_tickers_cleaned.txt') as f:
+        content = f.readlines()
+    # remove whitespace
+    content = [x.strip() for x in content]
+    print(content)
+    for ticker in content:
+        print('Downloading: ' + ticker)
+        try:
+            ticker_data = quandl_stocks(ticker, start_date=(2000, 1, 3), end_date=(2000, 1, 5))
+        except ValueError:
+            print('Download failed!')
+            print('')
+            continue
+        # ticker_data = quandl_stocks('AAPL', start_date=(2000, 1, 3), end_date=(2000, 1, 5))
+        ticker_data.to_csv('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/' + ticker + '.csv',
+                           encoding='utf-8')
+        print('Download completed!')
+        print('')
+        with open('working_nasdaq_tickers.txt', 'a') as working_tickers:
+            working_tickers.write(ticker)
+
+    # # apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1), end_date=(2000, 1, 3))
+    # apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1))
+    # print(apple_data)
+    # apple_data.to_csv('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/AAPL.csv', encoding='utf-8')
