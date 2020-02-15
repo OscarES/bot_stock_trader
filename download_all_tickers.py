@@ -52,7 +52,6 @@ if __name__ == '__main__':
             if ticker == 'AA_P':
                 continue
             with open(bad_tickers_file) as bad_tickers:
-                # does not work for tickers on first and last row
                 if '\n' + ticker + '\n' in bad_tickers.read():
                     continue
 
