@@ -45,6 +45,7 @@ if __name__ == '__main__':
                 first_row = False
                 continue
             ticker = row[0]
+            print('')
             print(ticker)
             # print(row[2])  # shows the description column
             # skip bad tickers
