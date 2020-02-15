@@ -1,5 +1,8 @@
+import os
 import quandl
 import datetime
+import csv
+from pathlib import Path
  
 quandl.ApiConfig.api_key = 'nYSMyLz8EGPfU8sVwjxd'
 
@@ -32,28 +35,47 @@ def quandl_stocks(symbol, start_date=(2000, 1, 1), end_date=None):
 
 
 if __name__ == '__main__':
-    with open('nasdaq_tickers_cleaned.txt') as f:
-        content = f.readlines()
-    # remove whitespace
-    content = [x.strip() for x in content]
-    print(content)
-    for ticker in content:
-        print('Downloading: ' + ticker)
-        try:
-            ticker_data = quandl_stocks(ticker, start_date=(2000, 1, 3), end_date=(2000, 1, 5))
-        except ValueError:
-            print('Download failed!')
-            print('')
-            continue
-        # ticker_data = quandl_stocks('AAPL', start_date=(2000, 1, 3), end_date=(2000, 1, 5))
-        ticker_data.to_csv('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/' + ticker + '.csv',
-                           encoding='utf-8')
-        print('Download completed!')
-        print('')
-        with open('working_nasdaq_tickers.txt', 'a') as working_tickers:
-            working_tickers.write(ticker)
+    bad_tickers_file = 'bad_tickers.txt'
+    number_of_calls = 0  # (1)
+    with open('/mnt/c/Users/oscar/Documents/Stocks/quandl/EOD_metadata.csv') as ticker_database:
+        reader = csv.reader(ticker_database)
+        first_row = True
+        for row in reader:
+            if first_row:
+                first_row = False
+                continue
+            ticker = row[0]
+            print(ticker)
+            # print(row[2])  # shows the description column
+            # skip bad tickers
+            if ticker == 'AA_P':
+                continue
+            with open(bad_tickers_file) as bad_tickers:
+                if ticker in bad_tickers.read():
+                    continue
 
-    # # apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1), end_date=(2000, 1, 3))
-    # apple_data = quandl_stocks('AAPL', start_date=(2000, 1, 1))
-    # print(apple_data)
-    # apple_data.to_csv('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/AAPL.csv', encoding='utf-8')
+            ticker_file = Path('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/' \
+                               + ticker + '.csv')
+            empty_file_size = 2000  # (bytes)
+            if not ticker_file.is_file() or os.stat(ticker_file).st_size < empty_file_size:
+                from_date = row[4]
+                to_date = row[5]
+                # print(from_date)
+                # print(to_date)
+                try:
+                    ticker_data = quandl_stocks(ticker,
+                                                start_date=(int(from_date[0:4]),
+                                                            int(from_date[5:7]),
+                                                            int(from_date[8:])),
+                                                end_date=(int(to_date[0:4]),
+                                                          int(to_date[5:7]),
+                                                          int(to_date[8:])))
+                    ticker_data.to_csv(ticker_file, encoding='utf-8')
+                    print('Succesfully downloaded: ' + ticker)
+                except ValueError:
+                    with open(bad_tickers_file, 'a') as bad_tickers:
+                        bad_tickers.write(ticker)
+                    print('Could not download: ' + ticker)
+            else:
+                print('Already downloaded: ' + ticker)
+
