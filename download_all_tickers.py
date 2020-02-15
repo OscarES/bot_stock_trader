@@ -53,6 +53,7 @@ if __name__ == '__main__':
                 continue
             with open(bad_tickers_file) as bad_tickers:
                 if '\n' + ticker + '\n' in bad_tickers.read():
+                    print('Skipping bad ticker: ' + ticker)
                     continue
 
             ticker_file = Path('/mnt/c/Users/oscar/Documents/Stocks/automatic_quandl/' \
