@@ -74,7 +74,7 @@ if __name__ == '__main__':
                     print('Succesfully downloaded: ' + ticker)
                 except ValueError:
                     with open(bad_tickers_file, 'a') as bad_tickers:
-                        bad_tickers.write(ticker)
+                        bad_tickers.write(ticker + '\n')
                     print('Could not download: ' + ticker)
             else:
                 print('Already downloaded: ' + ticker)
