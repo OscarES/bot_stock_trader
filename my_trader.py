@@ -6,6 +6,8 @@ from os import listdir
 from os.path import isfile, join
 import operator
 
+"""Trading bot that trades with knowledge of future prices"""
+
 data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
 delay = 0.5  # (s)
@@ -29,6 +31,7 @@ with open(data_dir + 'AAPL' + '.csv', 'r') as f:
 
 
 def get_one_stock_price(ticker, date):
+    """Gets the price of a stock at a certain date"""
     with open(data_dir + ticker + '.csv', 'r') as f:
         reader = csv.reader(f)
         price = 0  # ($)
@@ -39,6 +42,7 @@ def get_one_stock_price(ticker, date):
 
 
 def update_prices(date):
+    """Update the list of stock prices"""
     updated_prices = {}
     for ticker in tickers:
         price = get_one_stock_price(ticker, date)
@@ -48,6 +52,7 @@ def update_prices(date):
 
 
 def buy(portfolio, ticker, ticker_price, amount):
+    """Buys stocks for the bot's portfolio"""
     price = ticker_price * amount  # ($)
     if portfolio['Cash'] > price:
         portfolio[ticker] += amount
@@ -58,6 +63,7 @@ def buy(portfolio, ticker, ticker_price, amount):
 
 
 def buy_max(portfolio, ticker, ticker_price):
+    """Buys all in on one stock"""
     if ticker_price == 0:
         return portfolio
     max_amount = math.floor(portfolio['Cash'] / ticker_price)
@@ -65,6 +71,7 @@ def buy_max(portfolio, ticker, ticker_price):
 
 
 def sell(portfolio, ticker, ticker_price, amount):
+    """Sells stocks from the bot's portfolio"""
     if amount <= portfolio[ticker]:
         sell_value = ticker_price * amount  # ($)
         portfolio['Cash'] += sell_value  # ($)
@@ -75,17 +82,20 @@ def sell(portfolio, ticker, ticker_price, amount):
 
 
 def sell_max(portfolio, ticker, ticker_price):
+    """Sells all stocks of one ticker in the bot's portfolio"""
     max_amount = portfolio[ticker]
     return sell(portfolio, ticker, ticker_price, max_amount)
 
 
 def sell_all(portfolio, prices):
+    """Sells all stocks in the bot's portfolio"""
     for ticker in tickers:
         portfolio = sell_max(portfolio, ticker, prices[ticker])
     return portfolio
 
 
 def update_net_worth(portfolio, prices):
+    """Updates the net worth of the bot"""
     net_worth = portfolio['Cash']  # ($)
     for ticker in prices:
         net_worth += portfolio[ticker] * prices[ticker]  # ($)
@@ -94,6 +104,7 @@ def update_net_worth(portfolio, prices):
     return portfolio
 
 
+# Main script
 days_gone_by = 1  # warning 1 will mean the first date in dates
 while len(dates) >= days_gone_by:
     print(dates[-days_gone_by])
