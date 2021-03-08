@@ -8,29 +8,8 @@ import operator
 
 """Trading bot that trades with knowledge of future prices"""
 
-data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
-delay = 0.5  # (s)
-
-holdings = {'Net Worth': 1000000,'Cash': 1000000}
-
-ticker_files = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
-tickers = [f[:-4] for f in ticker_files if f[-4:] == '.csv']
-
-for ticker in tickers:
-    holdings[ticker] = 0
-
-dates = []
-with open(data_dir + 'AAPL' + '.csv', 'r') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        date = row[0]
-        # print(date)
-        if date != 'Date':
-            dates.append(date)
-
-
-def get_one_stock_price(ticker, date):
+def get_one_stock_price(ticker, date, data_dir):
     """Gets the price of a stock at a certain date"""
     with open(data_dir + ticker + '.csv', 'r') as f:
         reader = csv.reader(f)
@@ -41,11 +20,11 @@ def get_one_stock_price(ticker, date):
     return price
 
 
-def update_prices(date):
+def update_prices(date, tickers, data_dir):
     """Update the list of stock prices"""
     updated_prices = {}
     for ticker in tickers:
-        price = get_one_stock_price(ticker, date)
+        price = get_one_stock_price(ticker, date, data_dir)
         # price = 10 + random.random() * 5  # ($)
         updated_prices[ticker] = price  # ($)
     return updated_prices
@@ -87,7 +66,7 @@ def sell_max(portfolio, ticker, ticker_price):
     return sell(portfolio, ticker, ticker_price, max_amount)
 
 
-def sell_all(portfolio, prices):
+def sell_all(portfolio, prices, tickers):
     """Sells all stocks in the bot's portfolio"""
     for ticker in tickers:
         portfolio = sell_max(portfolio, ticker, prices[ticker])
@@ -104,35 +83,61 @@ def update_net_worth(portfolio, prices):
     return portfolio
 
 
-# Main script
-days_gone_by = 1  # warning 1 will mean the first date in dates
-while len(dates) >= days_gone_by:
-    print(dates[-days_gone_by])
+def main():
+    """Main script that runs the bot"""
+    data_dir = '/mnt/c/Users/oscar/Documents/Stocks/'
 
-    # load next day's closing values
-    prices = update_prices(dates[-days_gone_by])
-    print(prices)
+    delay = 0.5  # (s)
 
-    # trade
-    if len(dates) > days_gone_by + 1:
-        tomorrows_prices = update_prices(dates[-(days_gone_by + 1)])
-        arbitrages = {k : tomorrows_prices[k] - prices[k] for k in prices.keys()}
-        holdings = sell_all(holdings, prices)
-        best_arbitrage_ticker = max(arbitrages.items(), key=operator.itemgetter(1))[0]
-        # print('Arbitrages: {}'.format(arbitrages))
-        if arbitrages[best_arbitrage_ticker] > 0:
-            holdings = buy_max(holdings, best_arbitrage_ticker, prices[best_arbitrage_ticker])
+    holdings = {'Net Worth': 1000000,'Cash': 1000000}
+
+    ticker_files = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
+    tickers = [f[:-4] for f in ticker_files if f[-4:] == '.csv']
+
+    for ticker in tickers:
+        holdings[ticker] = 0
+
+    dates = []
+    with open(data_dir + 'AAPL' + '.csv', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            date = row[0]
+            # print(date)
+            if date != 'Date':
+                dates.append(date)
+
+    days_gone_by = 1  # warning 1 will mean the first date in dates
+    while len(dates) >= days_gone_by:
+        print(dates[-days_gone_by])
+
+        # load next day's closing values
+        prices = update_prices(dates[-days_gone_by], tickers, data_dir)
+        print(prices)
+
+        # trade
+        if len(dates) > days_gone_by + 1:
+            tomorrows_prices = update_prices(dates[-(days_gone_by + 1)], tickers, data_dir)
+            arbitrages = {k : tomorrows_prices[k] - prices[k] for k in prices.keys()}
+            holdings = sell_all(holdings, prices, tickers)
+            best_arbitrage_ticker = max(arbitrages.items(), key=operator.itemgetter(1))[0]
+            # print('Arbitrages: {}'.format(arbitrages))
+            if arbitrages[best_arbitrage_ticker] > 0:
+                holdings = buy_max(holdings, best_arbitrage_ticker, prices[best_arbitrage_ticker])
 
 
-    # if holdings['AAPL'] > 5:
-    #     holdings = sell_max(holdings, 'AAPL', prices['AAPL'])
-    # elif holdings['Cash'] > prices['AAPL']:
-    #     holdings = buy_max(holdings, 'AAPL', prices['AAPL'])
+        # if holdings['AAPL'] > 5:
+        #     holdings = sell_max(holdings, 'AAPL', prices['AAPL'])
+        # elif holdings['Cash'] > prices['AAPL']:
+        #     holdings = buy_max(holdings, 'AAPL', prices['AAPL'])
 
-    # print wealth
-    holdings = update_net_worth(holdings, prices)
-    print(holdings)
-    print()
+        # print wealth
+        holdings = update_net_worth(holdings, prices)
+        print(holdings)
+        print()
 
-    days_gone_by += 1
-    # time.sleep(delay)
+        days_gone_by += 1
+        # time.sleep(delay)
+
+
+if __name__ == "__main__":
+    main()
